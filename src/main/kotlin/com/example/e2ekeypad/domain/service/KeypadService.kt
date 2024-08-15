@@ -1,34 +1,19 @@
 package com.example.e2ekeypad.domain.service
-
+import com.example.e2ekeypad.dto.KeypadResponse
 import com.example.e2ekeypad.util.ImageUtil
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
 @Service
 class KeypadService {
 
-    fun generateRandomKeypad(): List<String> {
-        val imageFiles = listOf(
-            "static/keypad/keypad/_0.png",
-            "static/keypad/keypad/_1.png",
-            "static/keypad/keypad/_2.png",
-            "static/keypad/keypad/_3.png",
-            "static/keypad/keypad/_4.png",
-            "static/keypad/keypad/_5.png",
-            "static/keypad/keypad/_6.png",
-            "static/keypad/keypad/_7.png",
-            "static/keypad/keypad/_8.png",
-            "static/keypad/keypad/_9.png",
-            "static/keypad/keypad/_blank.png"
-        )
+    fun generateKeypadImageBase64(): KeypadResponse {
+        val imagePaths = (0..9).map { "src/main/resources/static/keypad/keypad/_$it.png" } +
+                listOf("src/main/resources/static/keypad/keypad/_blank.png", "src/main/resources/static/keypad/keypad/_blank.png")
+        val shuffledPaths = imagePaths.shuffled()
 
-        val base64Images = imageFiles.map { imageFile ->
-            val resource = ClassPathResource(imageFile)
-            resource.inputStream.use {
-                ImageUtil.encodeImageToBase64(it)
-            }
-        }
+        val base64Image = ImageUtil.generateKeypadImage(shuffledPaths)
+        val hashList = shuffledPaths.map { ImageUtil.getHashValue(it) }
 
-        return base64Images.shuffled()
+        return KeypadResponse(base64Image, hashList)
     }
 }
